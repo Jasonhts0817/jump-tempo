@@ -1,0 +1,22 @@
+<div *ngIf="topicList" class="container" (click)="next()">
+    <div class="outer-container">
+        <div #timerMask class="timer"></div>
+        <div class="inner-container">
+            <ng-container *ngIf="topicList.length > 0 else elseTemplate">
+                <div class="header">{{(topic) ? topic?.topic: "跳跳Tempo"}}</div>
+                <div class="ques-container" *ngIf="currentQues">
+                    <div class="ques">{{currentQues.ques}}</div>
+                    <div [ngClass]="{'right':currentQues.ans==='O', 'wrong':currentQues.ans==='X'}"
+                        *ngIf="secondCount >= durationTime" class="ans">{{currentQues.ans}}</div>
+                </div>
+                <div class="footer">
+                    <button *ngIf="!currentQues || (topic.quesList.length === 0 && secondCount >= durationTime)"
+                        (click)="start($event)">START</button>
+                </div>
+            </ng-container>
+            <ng-template #elseTemplate>
+                <div>遊戲結束</div>
+            </ng-template>
+        </div>
+    </div>
+</div>
