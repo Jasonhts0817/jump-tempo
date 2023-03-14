@@ -12,9 +12,10 @@ export class PickTopicComponent implements OnInit {
   @ViewChild('startBtn') startBtn!: ElementRef<HTMLButtonElement>;
   topicList!: Topic[];
   topic!: Topic;
-  currentQues!: Ques;
+  currentQues?: Ques;
   durationTime!: number;
   secondCount!: number;
+  showAnswer = false;
 
   doneQuesCount = 0;
   constructor(private http: HttpClient) { }
@@ -28,7 +29,7 @@ export class PickTopicComponent implements OnInit {
     event?.stopPropagation();
     this.resetGame();
     this.getTopic();
-    this.next();
+    this.currentQues = undefined;
   }
 
   setCountDown() {
@@ -42,10 +43,15 @@ export class PickTopicComponent implements OnInit {
         window.requestAnimationFrame(countDownFn);
       } else {
         this.timerMask.nativeElement.style.setProperty('transform', `translate(0, 100%)`)
+        this.playAudio(Sound.timeUp);
       }
 
     }
     window.requestAnimationFrame(countDownFn);
+  }
+  playAudio(sound: Sound) {
+    const audio = new Audio(sound);
+    audio.play();
   }
 
   getTopic() {
@@ -58,13 +64,24 @@ export class PickTopicComponent implements OnInit {
   }
 
   next() {
-    if (!this.topic || this.topic?.quesList.length === 0) { return; }
+    if (!this.topic || (this.topic?.quesList.length === 0 && this.showAnswer)) { return; }
+    if (this.secondCount >= this.durationTime && !this.showAnswer) {
+      this.showAnswer = true;
+      if (this.currentQues?.ans === 'O') {
+        this.playAudio(Sound.correct);
+      } else {
+        this.playAudio(Sound.wrong);
+      }
+      return;
+    }
+    this.showAnswer = false;
     this.resetPerQues();
     this.doneQuesCount++;
     this.setDurationTime();
     setTimeout(() => {
       this.currentQues = this.topic.quesList[this.getRandomInt(this.topic.quesList.length - 1)];
-      this.topic.quesList = this.topic.quesList.filter(t => t.ques !== this.currentQues.ques)
+      this.speakQuestion(this.currentQues.ques)
+      this.topic.quesList = this.topic.quesList.filter(t => t.ques !== this.currentQues?.ques)
       this.setCountDown();
     }, 200);
   }
@@ -99,6 +116,16 @@ export class PickTopicComponent implements OnInit {
     this.durationTime = 2000;
   }
 
+  speakQuestion(ques: string) {
+    let speakData = new SpeechSynthesisUtterance();
+    speakData.volume = 1; // From 0 to 1
+    speakData.rate = 0.9; // From 0.1 to 10
+    speakData.text = ques;
+    speakData.lang = 'zh-TW';
+
+    speechSynthesis.speak(speakData);
+  }
+
   @HostListener('document:keydown', ['$event'])
   @Debounce()
   keyPressDown(event: KeyboardEvent) {
@@ -124,4 +151,10 @@ export interface Topic {
 export interface Ques {
   ques: string;
   ans: string;
+}
+
+enum Sound {
+  correct = '/assets/correct-answer.mp3',
+  wrong = '/assets/wrong-answer.mp3',
+  timeUp = '/assets/time-up.mp3',
 }
