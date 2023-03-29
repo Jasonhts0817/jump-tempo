@@ -89,7 +89,7 @@ export class PickTopicComponent implements OnInit {
   setDurationTime() {
     switch (this.doneQuesCount) {
       case 3:
-        this.durationTime = 1500;
+        this.durationTime = 1200;
         break;
       case 6:
         this.durationTime = 1200;
@@ -98,10 +98,10 @@ export class PickTopicComponent implements OnInit {
         this.durationTime = 800;
         break;
       case 12:
-        this.durationTime = 500;
+        this.durationTime = 800;
         break;
       case 15:
-        this.durationTime = 300;
+        this.durationTime = 500;
         break;
     }
   }
@@ -113,7 +113,7 @@ export class PickTopicComponent implements OnInit {
 
   resetGame() {
     this.doneQuesCount = 0;
-    this.durationTime = 2000;
+    this.durationTime = 1500;
   }
 
   speakQuestion(ques: string) {
@@ -130,11 +130,7 @@ export class PickTopicComponent implements OnInit {
   @Debounce()
   keyPressDown(event: KeyboardEvent) {
     if (event.key === 'PageUp') {
-      if (!this.topic || this.topic.quesList.length === 0) {
-        this.start();
-      } else {
-        this.next();
-      }
+      this.start();
     }
     if (event.key === 'PageDown') {
       this.next();
