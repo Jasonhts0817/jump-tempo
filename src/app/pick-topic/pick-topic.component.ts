@@ -64,7 +64,7 @@ export class PickTopicComponent implements OnInit {
     window.requestAnimationFrame(countDownFn);
   }
   playAudio(sound: Sound) {
-    const audio = new Audio(sound);
+    const audio = new Audio(environment.apiUrl + sound);
     audio.play();
   }
 
@@ -171,7 +171,7 @@ export interface Ques {
 }
 
 enum Sound {
-  correct = '/assets/correct-answer.mp3',
-  wrong = '/assets/wrong-answer.mp3',
-  timeUp = '/assets/time-up.mp3',
+  correct = `assets/correct-answer.mp3`,
+  wrong = `assets/wrong-answer.mp3`,
+  timeUp = `assets/time-up.mp3`,
 }
