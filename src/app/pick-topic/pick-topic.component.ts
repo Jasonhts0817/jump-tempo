@@ -1,11 +1,18 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { Debounce } from '../decorator/debouce-time.decorator';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-pick-topic',
   templateUrl: './pick-topic.component.html',
-  styleUrls: ['./pick-topic.component.scss']
+  styleUrls: ['./pick-topic.component.scss'],
 })
 export class PickTopicComponent implements OnInit {
   @ViewChild('timerMask') timerMask!: ElementRef<HTMLDivElement>;
@@ -18,11 +25,13 @@ export class PickTopicComponent implements OnInit {
   showAnswer = false;
 
   doneQuesCount = 0;
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
   ngOnInit(): void {
-    this.http.get('/assets/topic.json').subscribe((res: any) => {
-      this.topicList = res;
-    })
+    this.http
+      .get(`${environment.apiUrl}assets/topic.json`)
+      .subscribe((res: any) => {
+        this.topicList = res;
+      });
   }
 
   start(event?: Event) {
@@ -38,15 +47,20 @@ export class PickTopicComponent implements OnInit {
       const now = new Date();
       this.secondCount = +now - +start;
       if (this.secondCount < this.durationTime) {
-        const maskPercent = (this.secondCount / this.durationTime * 100) + '%';
-        this.timerMask.nativeElement.style.setProperty('transform', `translate(0, ${maskPercent})`)
+        const maskPercent = (this.secondCount / this.durationTime) * 100 + '%';
+        this.timerMask.nativeElement.style.setProperty(
+          'transform',
+          `translate(0, ${maskPercent})`
+        );
         window.requestAnimationFrame(countDownFn);
       } else {
-        this.timerMask.nativeElement.style.setProperty('transform', `translate(0, 100%)`)
+        this.timerMask.nativeElement.style.setProperty(
+          'transform',
+          `translate(0, 100%)`
+        );
         this.playAudio(Sound.timeUp);
       }
-
-    }
+    };
     window.requestAnimationFrame(countDownFn);
   }
   playAudio(sound: Sound) {
@@ -55,8 +69,8 @@ export class PickTopicComponent implements OnInit {
   }
 
   getTopic() {
-    this.topic = this.topicList[this.getRandomInt(this.topicList.length - 1)]
-    this.topicList = this.topicList.filter(t => t.topic !== this.topic.topic)
+    this.topic = this.topicList[this.getRandomInt(this.topicList.length - 1)];
+    this.topicList = this.topicList.filter((t) => t.topic !== this.topic.topic);
   }
 
   getRandomInt(max: number) {
@@ -64,7 +78,9 @@ export class PickTopicComponent implements OnInit {
   }
 
   next() {
-    if (!this.topic || (this.topic?.quesList.length === 0 && this.showAnswer)) { return; }
+    if (!this.topic || (this.topic?.quesList.length === 0 && this.showAnswer)) {
+      return;
+    }
     if (this.secondCount >= this.durationTime && !this.showAnswer) {
       this.showAnswer = true;
       if (this.currentQues?.ans === 'O') {
@@ -79,9 +95,12 @@ export class PickTopicComponent implements OnInit {
     this.doneQuesCount++;
     this.setDurationTime();
     setTimeout(() => {
-      this.currentQues = this.topic.quesList[this.getRandomInt(this.topic.quesList.length - 1)];
-      this.speakQuestion(this.currentQues.ques)
-      this.topic.quesList = this.topic.quesList.filter(t => t.ques !== this.currentQues?.ques)
+      this.currentQues =
+        this.topic.quesList[this.getRandomInt(this.topic.quesList.length - 1)];
+      this.speakQuestion(this.currentQues.ques);
+      this.topic.quesList = this.topic.quesList.filter(
+        (t) => t.ques !== this.currentQues?.ques
+      );
       this.setCountDown();
     }, 200);
   }
@@ -108,7 +127,10 @@ export class PickTopicComponent implements OnInit {
 
   resetPerQues() {
     this.secondCount = 0;
-    this.timerMask.nativeElement.style.setProperty('transform', 'translate(0, 0%)')
+    this.timerMask.nativeElement.style.setProperty(
+      'transform',
+      'translate(0, 0%)'
+    );
   }
 
   resetGame() {
@@ -137,7 +159,6 @@ export class PickTopicComponent implements OnInit {
     }
   }
 }
-
 
 export interface Topic {
   topic: string;
