@@ -2,7 +2,7 @@
   <div class="outer-container">
     <div #timerMask class="timer"></div>
     <div class="inner-container">
-      <ng-container *ngIf="topicList.length > 0; else elseTemplate">
+      <ng-container *ngIf="hasQuesList; else elseTemplate">
         <div class="header">{{ topic ? topic.topic : "跳跳Tempo" }}</div>
         <div class="game-desc" *ngIf="!topic">
           遊戲說明：<br />

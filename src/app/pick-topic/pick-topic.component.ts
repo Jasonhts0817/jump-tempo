@@ -25,6 +25,15 @@ export class PickTopicComponent implements OnInit {
   showAnswer = false;
 
   doneQuesCount = 0;
+
+  public get hasQuesList(): boolean {
+    return (
+      this.topicList.length > 0 ||
+      (this.topic?.quesList && this.topic.quesList.length > 0) ||
+      this.currentQues !== undefined
+    );
+  }
+
   constructor(private http: HttpClient) {}
   ngOnInit(): void {
     this.http
@@ -38,7 +47,6 @@ export class PickTopicComponent implements OnInit {
     event?.stopPropagation();
     this.resetGame();
     this.getTopic();
-    this.currentQues = undefined;
   }
 
   setCountDown() {
@@ -134,8 +142,20 @@ export class PickTopicComponent implements OnInit {
   }
 
   resetGame() {
+    this.resetPerQues();
+    this.currentQues = undefined;
     this.doneQuesCount = 0;
     this.durationTime = 1500;
+  }
+
+  resetQues() {
+    this.topic = undefined as any;
+    this.resetGame();
+    this.http
+      .get(`${environment.apiUrl}assets/topic.json`)
+      .subscribe((res: any) => {
+        this.topicList = res;
+      });
   }
 
   speakQuestion(ques: string) {
@@ -152,7 +172,11 @@ export class PickTopicComponent implements OnInit {
   @Debounce()
   keyPressDown(event: KeyboardEvent) {
     if (event.key === 'PageUp') {
-      this.start();
+      if (this.hasQuesList) {
+        this.start();
+      } else {
+        this.resetQues();
+      }
     }
     if (event.key === 'PageDown') {
       this.next();
