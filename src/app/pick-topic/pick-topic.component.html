@@ -1,0 +1,51 @@
+<div *ngIf="topicList" class="container" (click)="next()">
+  <div class="outer-container">
+    <div #timerMask class="timer"></div>
+    <div class="inner-container">
+      <ng-container *ngIf="hasQuesList; else elseTemplate">
+        <div class="header">{{ topic ? topic.topic : "跳跳Tempo" }}</div>
+        <div class="game-desc" *ngIf="!topic">
+          遊戲說明：<br />
+          判斷該內容否符合題目<br /><br />
+          遊戲開始前：<br />
+          地板上分別有兩個區塊 → ⭕️ | ❌<br />
+          遊戲者須站在圈圈與叉叉的區域<br />
+          接著由電腦隨機出題 ex: 圓形的東西<br /><br />
+          遊戲開始:<br />
+          遊戲者必須選擇畫面描述的內容是否有符合剛剛的題目<br />
+          由畫面顯示描述 ex: 甜甜圈<br />
+          遊戲者開始選擇，選錯答案者則淘汰<br />
+        </div>
+        <div class="ques-container" *ngIf="currentQues">
+          <div class="ques" [attr.aria-live]="currentQues.ques">
+            {{ currentQues.ques }}
+          </div>
+          <div
+            [ngClass]="{
+              right: currentQues.ans === 'O',
+              wrong: currentQues.ans === 'X'
+            }"
+            *ngIf="secondCount >= durationTime && showAnswer"
+            class="ans"
+          >
+            {{ currentQues.ans }}
+          </div>
+        </div>
+        <div class="footer">
+          <button
+            *ngIf="
+              !topic ||
+              (topic.quesList.length === 0 && secondCount >= durationTime)
+            "
+            (click)="start($event)"
+          >
+            START
+          </button>
+        </div>
+      </ng-container>
+      <ng-template #elseTemplate>
+        <div>遊戲結束</div>
+      </ng-template>
+    </div>
+  </div>
+</div>
